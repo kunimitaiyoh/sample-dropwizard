@@ -1,5 +1,6 @@
 package com.example.sample
 
-class SampleConfig {
+import io.dropwizard.Configuration
 
+class SampleConfig extends Configuration {
 }
