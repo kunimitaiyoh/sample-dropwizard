@@ -1,0 +1,21 @@
+# config for run REST server as a Docker container
+database:
+  driverClass: com.mysql.jdbc.Driver
+  url: 'jdbc:mysql://db/sample'
+  user: root
+  password: root
+logging:
+  level: INFO
+  loggers:
+    io.dropwizard: INFO
+  appenders:
+    -
+      type: console
+    -
+      type: file
+      currentLogFilename: /var/log/sample/sample.log
+      threshold: ALL
+      archive: true
+      archivedLogFilenamePattern: /var/log/sample/sample-%d.log
+      archivedFileCount: 5
+      timeZone: UTC
