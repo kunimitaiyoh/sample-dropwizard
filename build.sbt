@@ -17,3 +17,11 @@ libraryDependencies ++= Seq(
 initialCommands := "import com.example.sample._"
 
 assemblyOutputPath in assembly := file(s"target/${name.value}.jar")
+assemblyMergeStrategy in assembly := {
+  case PathList("javax", "servlet", xs @ _*) => MergeStrategy.first
+  case PathList(ps @ _*) if Seq(".properties", ".xml", ".types", ".class")
+    .exists(x =>  ps.last.endsWith(x)) => MergeStrategy.first
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}

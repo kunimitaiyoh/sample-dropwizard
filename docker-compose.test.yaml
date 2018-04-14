@@ -1,0 +1,22 @@
+version: "2"
+services:
+  rest:
+    build:
+      context: .
+    command: java -jar target/sample.jar server config.test.yaml
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    volumes:
+      - ./temp/log/sample:/var/log/sample
+  db:
+    image: mysql:5.7
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sample
+    volumes:
+      - ./temp/db:/var/lib/mysql
