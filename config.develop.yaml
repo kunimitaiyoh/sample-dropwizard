@@ -1,4 +1,9 @@
 # config for run REST server on your local JVM
+database:
+  driverClass: com.mysql.jdbc.Driver
+  url: 'jdbc:mysql://db/sample'
+  user: root
+  password: root
 logging:
   level: WARN
   loggers:
