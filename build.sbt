@@ -12,8 +12,7 @@ libraryDependencies ++= Seq(
   "io.dropwizard" % "dropwizard-core" % "1.3.0",
   "io.dropwizard" % "dropwizard-jdbi3" % "1.3.0",
   "io.dropwizard" % "dropwizard-migrations" % "1.3.0",
-  "org.glassfish.jersey.media" % "jersey-media-sse" % "2.25.1",
-  "org.apache.httpcomponents" % "httpmime" % "4.5.3",
+  "mysql" % "mysql-connector-java" % "5.1.6"
 )
 
 initialCommands := "import com.example.sample._"
