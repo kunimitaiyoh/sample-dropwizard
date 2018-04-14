@@ -8,11 +8,14 @@ val workaround: Unit = {
   sys.props += "packaging.type" -> "jar"
   ()
 }
+
 libraryDependencies ++= Seq(
-  "io.dropwizard" % "dropwizard-core" % "1.3.0",
-  "io.dropwizard" % "dropwizard-jdbi3" % "1.3.0",
-  "io.dropwizard" % "dropwizard-migrations" % "1.3.0",
-  "mysql" % "mysql-connector-java" % "5.1.6"
+  "io.dropwizard" % "dropwizard-core" % "1.1.0",
+  "io.dropwizard" % "dropwizard-jdbi" % "1.1.0",
+  "io.dropwizard" % "dropwizard-migrations" % "1.1.0",
+  "com.datasift.dropwizard.scala" %% "dropwizard-scala-core" % "1.1.0-2",
+  "com.datasift.dropwizard.scala" %% "dropwizard-scala-jdbi" % "1.1.0-2",
+  "mysql" % "mysql-connector-java" % "5.1.6",
 )
 
 initialCommands := "import com.example.sample._"
