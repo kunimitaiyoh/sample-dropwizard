@@ -15,7 +15,7 @@ libraryDependencies ++= Seq(
   "io.dropwizard" % "dropwizard-migrations" % "1.1.0",
   "com.datasift.dropwizard.scala" %% "dropwizard-scala-core" % "1.1.0-2",
   "com.datasift.dropwizard.scala" %% "dropwizard-scala-jdbi" % "1.1.0-2",
-  "mysql" % "mysql-connector-java" % "5.1.6",
+  "mysql" % "mysql-connector-java" % "5.1.26",
 )
 
 initialCommands := "import com.example.sample._"
