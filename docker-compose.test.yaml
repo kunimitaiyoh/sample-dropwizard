@@ -3,7 +3,7 @@ services:
   rest:
     build:
       context: .
-    command: java -jar target/sample.jar server config.test.yaml
+    command: bash -c "java -jar target/sample.jar db migrate config.test.yaml && java -jar target/sample.jar server config.test.yaml"
     ports:
       - 3000:3000
     depends_on:
