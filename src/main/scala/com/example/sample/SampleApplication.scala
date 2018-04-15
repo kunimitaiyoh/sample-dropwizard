@@ -1,11 +1,16 @@
 package com.example.sample
 
-import com.example.sample.jdbi.ConstantDao
+import java.time.LocalDateTime
+
+import com.codahale.metrics.MetricRegistry
+import com.example.sample.api.User
+import com.example.sample.jdbi.UserDao
 import io.dropwizard.Application
 import io.dropwizard.db.DataSourceFactory
 import io.dropwizard.jdbi.DBIFactory
 import io.dropwizard.migrations.MigrationsBundle
 import io.dropwizard.setup.{Bootstrap, Environment}
+import liquibase.database.jvm.JdbcConnection
 
 object SampleApplication extends Application[SampleConfig] {
   def main(args: Array[String]): Unit = {
@@ -16,7 +21,7 @@ object SampleApplication extends Application[SampleConfig] {
     bootstrap.addBundle(new MigrationsBundle[SampleConfig] {
       override def getDataSourceFactory(configuration: SampleConfig): DataSourceFactory = configuration.database
 
-      override def getMigrationsFileName: String = "migrations.yaml"
+      override def getMigrationsFileName: String = "migrations.sql"
     })
   }
 
@@ -25,6 +30,9 @@ object SampleApplication extends Application[SampleConfig] {
 
     environment.jersey().register(jdbi)
 
-    jdbi.onDemand(classOf[ConstantDao]).findOne()
+    val dao = jdbi.onDemand(classOf[UserDao])
+    val id = dao.insert(User(0, "kunimi", "kunimi.taiyoh@gmail.com", "1234"), LocalDateTime.now())
+    val name = dao.find(id)
+    System.out.println(name)
   }
 }

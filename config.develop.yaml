@@ -8,5 +8,6 @@ logging:
   level: WARN
   loggers:
     com.example.sample: DEBUG
+    liquibase: INFO
   appenders:
     - type: console
