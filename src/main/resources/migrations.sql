@@ -10,3 +10,7 @@ CREATE TABLE users (
 );
 
 --rollback DROP TABLE users;
+
+--changeset sample:2
+ALTER TABLE users CHANGE id id INT AUTO_INCREMENT;
+--rollback ALTER TABLE users CHANGE id id INT;
