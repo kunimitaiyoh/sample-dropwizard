@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset author:kunimitaiyoh
+--changeset sample:1
 CREATE TABLE users (
     id INT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
@@ -8,3 +8,5 @@ CREATE TABLE users (
     password_digest CHAR(64) NOT NULL,
     created DATETIME NOT NULL
 );
+
+--rollback DROP TABLE users;
