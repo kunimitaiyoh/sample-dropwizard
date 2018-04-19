@@ -1,11 +1,8 @@
 package com.example.sample
 
-import java.time.{Instant, LocalDateTime}
-
-import com.example.sample.api.User
 import com.example.sample.jdbi.UserDao
 import io.dropwizard.Application
-import io.dropwizard.db.{DataSourceFactory, PooledDataSourceFactory}
+import io.dropwizard.db.DataSourceFactory
 import io.dropwizard.jdbi.DBIFactory
 import io.dropwizard.migrations.MigrationsBundle
 import io.dropwizard.setup.{Bootstrap, Environment}
