@@ -18,7 +18,6 @@ object SampleApplication extends Application[SampleConfig] {
 
       override def getMigrationsFileName: String = "migrations.sql"
     })
-
   }
 
   override def run(config: SampleConfig, environment: Environment) : Unit = {
