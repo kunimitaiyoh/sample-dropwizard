@@ -26,12 +26,11 @@ object SampleApplication extends Application[SampleConfig] {
     val jersey = environment.jersey()
 
     val jdbi = new DBIFactory().build(environment, config.database, "mysql")
-    jdbi.registerMapper(new ProductResultSetMapperFactory)
-    jdbi.registerContainerFactory(new OptionContainerFactory)
+    //jdbi.registerMapper(new ProductResultSetMapperFactory)
+    //jdbi.registerContainerFactory(new OptionContainerFactory)
+    jersey.register(jdbi)
 
     val users = jdbi.onDemand(classOf[UserDao])
-
-    jersey.register(jdbi)
     jersey.register(users)
 
     jersey.register(new UsersResource(users))
