@@ -3,11 +3,13 @@ package com.example.sample.resources
 import java.time.Instant
 import javax.validation.Valid
 import javax.ws.rs.core.MediaType
-import javax.ws.rs.{BeanParam, FormParam, NotFoundException, POST, Path, Produces, QueryParam}
+import javax.ws.rs.{BeanParam, FormParam, GET, NotFoundException, POST, Path, Produces, QueryParam}
 
+import com.codahale.metrics.annotation.Timed
 import com.example.sample.api.User
-import com.example.sample.jdbi.UserDao
+import com.example.sample.dao.UserDao
 import com.example.sample.resources.UsersResource.UserParams
+import io.dropwizard.hibernate.UnitOfWork
 import io.dropwizard.validation.ValidationMethod
 import org.hibernate.validator.constraints.NotEmpty
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -18,19 +20,23 @@ class UsersResource(val users: UserDao) {
   val passwordEncoder = new BCryptPasswordEncoder()
 
   @POST
+  @Timed
+  @UnitOfWork
   def create(@Valid @BeanParam user: UserParams): User = {
     val password = this.passwordEncoder.encode(user.password)
-    val id = this.users.insert(User(0, user.name, user.mail, password, Instant.now()))
-    this.users.find(id)//.get
+    val createdUser = this.users.create(User(0, user.name, user.mail, password, Instant.now()))
+    createdUser
   }
 
+  @GET
   @Path("/{id}")
+  @Timed
+  @UnitOfWork
   def get(@QueryParam("id") id: Int): User = {
-    null
-//    this.users.find(id) match {
-//      case Some(user) => user
-//      case None => throw new NotFoundException("No such user.")
-//    }
+    this.users.find(id) match {
+      case Some(user) => user
+      case None => throw new NotFoundException("No such user.")
+    }
   }
 }
 

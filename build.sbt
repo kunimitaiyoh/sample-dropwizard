@@ -12,6 +12,7 @@ val workaround: Unit = {
 libraryDependencies ++= Seq(
   "io.dropwizard" % "dropwizard-core" % "1.1.0",
   "io.dropwizard" % "dropwizard-jdbi" % "1.1.0",
+  "io.dropwizard" % "dropwizard-hibernate" % "1.1.0",
   "io.dropwizard" % "dropwizard-migrations" % "1.1.0",
   "org.springframework.security" % "spring-security-web" % "5.0.4.RELEASE",
   "com.datasift.dropwizard.scala" %% "dropwizard-scala-core" % "1.1.0-2",
