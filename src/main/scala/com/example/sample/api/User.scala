@@ -1,12 +1,10 @@
 package com.example.sample.api
 
 import java.time.Instant
-import javax.persistence.{Column, Entity, Table}
+import javax.xml.bind.annotation.XmlRootElement
 
-import com.example.sample.api.Entities.Id
+import scala.beans.BeanProperty
 
-@Entity
-@Table(name = "users")
-case class User(@Id id: Int, name: String, mail: String, passwordDigest: String, created: Instant) {
+case class User(@BeanProperty id: Int, @BeanProperty name: String, @BeanProperty mail: String, passwordDigest: String, @BeanProperty created: Instant) {
 
 }

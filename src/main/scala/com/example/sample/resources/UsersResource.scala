@@ -3,7 +3,7 @@ package com.example.sample.resources
 import java.time.Instant
 import javax.validation.Valid
 import javax.ws.rs.core.MediaType
-import javax.ws.rs.{BeanParam, FormParam, GET, NotFoundException, POST, Path, Produces, QueryParam}
+import javax.ws.rs.{BeanParam, FormParam, GET, NotFoundException, POST, Path, PathParam, Produces, QueryParam}
 
 import com.codahale.metrics.annotation.Timed
 import com.example.sample.api.User
@@ -21,18 +21,17 @@ class UsersResource(val users: UserDao) {
 
   @POST
   @Timed
-  @UnitOfWork
   def create(@Valid @BeanParam user: UserParams): User = {
     val password = this.passwordEncoder.encode(user.password)
-    val createdUser = this.users.create(User(0, user.name, user.mail, password, Instant.now()))
+    val id = this.users.create(User(0, user.name, user.mail, password, Instant.now()))
+    val createdUser = this.users.find(id).get
     createdUser
   }
 
   @GET
   @Path("/{id}")
   @Timed
-  @UnitOfWork
-  def get(@QueryParam("id") id: Int): User = {
+  def get(@PathParam("id") id: Int): User = {
     this.users.find(id) match {
       case Some(user) => user
       case None => throw new NotFoundException("No such user.")

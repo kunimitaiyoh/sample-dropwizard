@@ -4,10 +4,9 @@ import com.datasift.dropwizard.scala.jdbi.tweak.{OptionContainerFactory, Product
 import com.example.sample.api.User
 import com.example.sample.dao.UserDao
 import com.example.sample.resources.UsersResource
-import com.google.common.collect.ImmutableList
 import io.dropwizard.Application
-import io.dropwizard.db.{DataSourceFactory, PooledDataSourceFactory}
-import io.dropwizard.hibernate.{HibernateBundle, SessionFactoryFactory}
+import io.dropwizard.db.DataSourceFactory
+import io.dropwizard.hibernate.HibernateBundle
 import io.dropwizard.jdbi.DBIFactory
 import io.dropwizard.migrations.MigrationsBundle
 import io.dropwizard.setup.{Bootstrap, Environment}
@@ -33,10 +32,12 @@ object SampleApplication extends Application[SampleConfig] {
 
   override def run(config: SampleConfig, environment: Environment) : Unit = {
     val jersey = environment.jersey()
+    val jdbi = new DBIFactory().build(environment, config.database, "mysql")
+    jdbi.registerMapper(new ProductResultSetMapperFactory)
 
+    jersey.register(jdbi)
 
-
-    val users = new UserDao(hibernate.getSessionFactory)
+    val users = new UserDao(jdbi)
     jersey.register(users)
 
     jersey.register(new UsersResource(users))
