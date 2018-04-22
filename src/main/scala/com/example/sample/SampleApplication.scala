@@ -1,7 +1,7 @@
 package com.example.sample
 
 import com.datasift.dropwizard.scala.jdbi.tweak.ProductResultSetMapperFactory
-import com.example.sample.dao.UserDao
+import com.example.sample.dao.RawJdbiUserDao
 import com.example.sample.resources.UsersResource
 import io.dropwizard.Application
 import io.dropwizard.db.DataSourceFactory
@@ -29,7 +29,7 @@ object SampleApplication extends Application[SampleConfig] {
 
     jersey.register(jdbi)
 
-    val users = new UserDao(jdbi)
+    val users = new RawJdbiUserDao(jdbi)
     jersey.register(users)
 
     jersey.register(new UsersResource(users))

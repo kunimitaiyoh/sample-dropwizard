@@ -5,8 +5,8 @@ import java.sql.Timestamp
 import com.example.sample.api.User
 import org.skife.jdbi.v2.DBI
 
-class UserDao(dbi: DBI) extends AbstractDao[User](dbi) {
-  def create(user: User): Int = {
+class RawJdbiUserDao(dbi: DBI) extends RawJdbiDao[User](dbi) with IUserDao {
+  override def create(user: User): Int = {
     this.dbi.withHandle(handle => {
       val created = handle.createStatement("Insert into users (name, mail, password_digest, created) values (:name, :mail, :password_digest, :created)")
         .bind("name", user.name)
@@ -26,7 +26,7 @@ class UserDao(dbi: DBI) extends AbstractDao[User](dbi) {
     })
   }
 
-  def find(id: Int): Option[User] = {
+  override def find(id: Int): Option[User] = {
     this.dbi.withHandle(handle => {
       val record = handle.createQuery("Select id, name, mail, password_digest, created from users where id = :id")
         .bind("id", id)
@@ -34,7 +34,7 @@ class UserDao(dbi: DBI) extends AbstractDao[User](dbi) {
     })
   }
 
-  def convert(record: java.util.Map[String, AnyRef]): User = {
+  override def convert(record: java.util.Map[String, AnyRef]): User = {
     val id = record.get("id").asInstanceOf[Int]
     val name = record.get("name").asInstanceOf[String]
     val mail = record.get("mail").asInstanceOf[String]
