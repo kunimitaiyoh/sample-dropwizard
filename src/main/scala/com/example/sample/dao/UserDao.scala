@@ -1,6 +1,5 @@
 package com.example.sample.dao
 
-import javax.persistence.{Inheritance, InheritanceType, Table}
 
 import com.example.sample.api.User
 import io.dropwizard.hibernate.AbstractDAO
