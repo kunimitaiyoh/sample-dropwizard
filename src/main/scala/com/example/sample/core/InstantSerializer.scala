@@ -4,9 +4,10 @@ import java.time.{Instant, ZoneOffset}
 
 import com.example.sample.core.InstantSerializer.FORMATTER
 import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import com.fasterxml.jackson.databind.{JsonSerializer, SerializerProvider}
 
-class InstantSerializer extends JsonSerializer[Instant]{
+class InstantSerializer extends StdSerializer[Instant](classOf[Instant]){
   override def serialize(value: Instant, gen: JsonGenerator, serializers: SerializerProvider): Unit = {
     gen.writeObject(FORMATTER.format(value))
   }
