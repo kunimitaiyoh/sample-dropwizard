@@ -7,7 +7,7 @@ import javax.ws.rs.{BeanParam, FormParam, GET, NotFoundException, POST, Path, Pa
 
 import com.codahale.metrics.annotation.Timed
 import com.example.sample.api.User
-import com.example.sample.dao.RawJdbiUserDao
+import com.example.sample.dao.UserDao
 import com.example.sample.resources.UsersResource.UserParams
 import io.dropwizard.validation.ValidationMethod
 import org.hibernate.validator.constraints.NotEmpty
@@ -15,7 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 @Path("/users")
 @Produces(Array(MediaType.APPLICATION_JSON))
-class UsersResource(val users: RawJdbiUserDao) {
+class UsersResource(val users: UserDao) {
   val passwordEncoder = new BCryptPasswordEncoder()
 
   @POST
