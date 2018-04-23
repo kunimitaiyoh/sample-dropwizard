@@ -5,7 +5,7 @@ import java.sql.Timestamp
 import com.example.sample.api.User
 import org.skife.jdbi.v2.DBI
 
-class RawJdbiUserDao(dbi: DBI) extends RawJdbiDao[User](dbi) with IUserDao {
+class RawJdbiUserDao(dbi: DBI) extends RawJdbiDao[User](dbi) with UserDao {
   override def create(user: User): Int = {
     this.dbi.withHandle(handle => {
       val created = handle.createStatement("Insert into users (name, mail, password_digest, created) values (:name, :mail, :password_digest, :created)")
