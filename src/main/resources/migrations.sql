@@ -35,3 +35,8 @@ CREATE TABLE comments (
 --changeset sample:4
 ALTER TABLE users CHANGE password_digest password_digest CHAR(60) NOT NULL;
 --rollback ALTER TABLE users CHANGE password_digest password_digest CHAR(64) NOT NULL;
+
+--changeset sample:5
+ALTER TABLE users CHANGE mail mail VARCHAR(127) NOT NULL;
+ALTER TABLE users ADD UNIQUE (mail);
+
