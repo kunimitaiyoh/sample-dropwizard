@@ -3,13 +3,14 @@ package com.example.sample.resources
 import java.time.Instant
 import javax.annotation.security.PermitAll
 import javax.validation.Valid
-import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.{Context, MediaType, Response, SecurityContext}
 import javax.ws.rs.{BeanParam, FormParam, GET, NotFoundException, POST, Path, PathParam, Produces}
 
 import com.codahale.metrics.annotation.Timed
 import com.example.sample.api.User
 import com.example.sample.dao.UserDao
 import com.example.sample.resources.UsersResource.UserParams
+import io.dropwizard.auth.Auth
 import io.dropwizard.validation.ValidationMethod
 import org.hibernate.validator.constraints.NotEmpty
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -37,6 +38,13 @@ class UsersResource(val users: UserDao) {
       case Some(user) => user
       case None => throw new NotFoundException("No such user.")
     }
+  }
+
+  @GET
+  @Path("/hello")
+  @Timed
+  def greet(@Auth user: User): Response = {
+    Response.ok(s"Hello, ${user.name}!").build()
   }
 }
 

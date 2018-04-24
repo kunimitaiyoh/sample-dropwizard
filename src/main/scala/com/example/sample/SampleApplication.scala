@@ -10,7 +10,7 @@ import com.example.sample.dao.{InMemoryAccessTokenDao, RawJdbiUserDao}
 import com.example.sample.resources.{AuthorizationResource, UsersResource}
 import com.fasterxml.jackson.databind.module.SimpleModule
 import io.dropwizard.Application
-import io.dropwizard.auth.AuthDynamicFeature
+import io.dropwizard.auth.{AuthDynamicFeature, AuthValueFactoryProvider}
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter
 import io.dropwizard.db.DataSourceFactory
 import io.dropwizard.jdbi.DBIFactory
@@ -53,6 +53,7 @@ object SampleApplication extends Application[SampleConfig] {
       .buildAuthFilter()
     jersey.register(new AuthDynamicFeature(authFilter))
     jersey.register(classOf[RolesAllowedDynamicFeature])
+    jersey.register(new AuthValueFactoryProvider.Binder(classOf[User]))
 
     jersey.register(new UsersResource(users))
     jersey.register(new AuthorizationResource(accessTokens, users))
