@@ -1,10 +1,12 @@
 package com.example.sample
 
 import java.util.{Optional, UUID}
+import javax.ws.rs.WebApplicationException
+import javax.ws.rs.core.Response
 
 import com.example.sample.api.User
 import com.example.sample.dao.{AccessTokenDao, UserDao}
-import io.dropwizard.auth.Authenticator
+import io.dropwizard.auth.{AuthenticationException, Authenticator}
 
 object Authorizations {
 
@@ -18,10 +20,10 @@ object Authorizations {
         val id = UUID.fromString(accessTokenId)
         val token = this.tokens.find(id)
         token.flatMap(t => users.find(t.userId))
-          .map(Optional.of)
-          .getOrElse(Optional.empty())
+          .map(Optional.of[User])
+          .getOrElse(Optional.empty[User]())
       } catch {
-        case e: IllegalArgumentException => Optional.empty()
+        case e: IllegalArgumentException => throw new WebApplicationException(Response.Status.UNAUTHORIZED)
       }
     }
   }
