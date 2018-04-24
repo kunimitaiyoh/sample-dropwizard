@@ -2,6 +2,7 @@ package com.example.sample
 
 import java.time.Instant
 
+import com.codahale.metrics.MetricRegistry
 import com.datasift.dropwizard.scala.jdbi.tweak.ProductResultSetMapperFactory
 import com.example.sample.Authorizations.SampleOAuthAuthenticator
 import com.example.sample.api.User
@@ -10,7 +11,7 @@ import com.example.sample.dao.{InMemoryAccessTokenDao, RawJdbiUserDao}
 import com.example.sample.resources.{AuthorizationResource, UsersResource}
 import com.fasterxml.jackson.databind.module.SimpleModule
 import io.dropwizard.Application
-import io.dropwizard.auth.{AuthDynamicFeature, AuthValueFactoryProvider}
+import io.dropwizard.auth.{AuthDynamicFeature, AuthValueFactoryProvider, CachingAuthenticator}
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter
 import io.dropwizard.db.DataSourceFactory
 import io.dropwizard.jdbi.DBIFactory
@@ -48,7 +49,8 @@ object SampleApplication extends Application[SampleConfig] {
     jersey.register(users)
 
     val authFilter = new OAuthCredentialAuthFilter.Builder[User]()
-      .setAuthenticator(new SampleOAuthAuthenticator(accessTokens, users))
+      .setAuthenticator(new CachingAuthenticator(new MetricRegistry(),
+        new SampleOAuthAuthenticator(accessTokens, users), config.authenticationCachePolicy))
       .setPrefix("Bearer")
       .buildAuthFilter()
     jersey.register(new AuthDynamicFeature(authFilter))

@@ -1,7 +1,7 @@
 # config for run REST server as a Docker container
 database:
   driverClass: com.mysql.jdbc.Driver
-  url: 'jdbc:mysql://db/sample'
+  url: jdbc:mysql://db/sample
   user: root
   password: root
 logging:
@@ -19,3 +19,4 @@ logging:
       archivedLogFilenamePattern: /var/log/sample/sample-%d.log
       archivedFileCount: 5
       timeZone: UTC
+authenticationCachePolicy: maximumSize=10000, expireAfterAccess=10m
