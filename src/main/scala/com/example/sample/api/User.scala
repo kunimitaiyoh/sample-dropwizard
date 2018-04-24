@@ -17,7 +17,7 @@ case class User(
 
   passwordDigest: String,
 
-   @BeanProperty
+  @BeanProperty
   created: Instant)
 
   extends Principal

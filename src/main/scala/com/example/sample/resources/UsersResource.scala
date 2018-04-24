@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 @Path("/users")
 @Produces(Array(MediaType.APPLICATION_JSON))
+@PermitAll
 class UsersResource(val users: UserDao) {
   val passwordEncoder = new BCryptPasswordEncoder()
 

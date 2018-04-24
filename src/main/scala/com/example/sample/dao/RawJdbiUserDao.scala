@@ -34,7 +34,7 @@ class RawJdbiUserDao(dbi: DBI) extends RawJdbiDao[User](dbi) with UserDao {
       val record = handle.createQuery("Select id, name, mail, password_digest, created from users where id = :id")
         .bind("id", id)
       Option(record.first())
-        .map(this.convert)
+        .map(this.convert(_).hidePassword())
     })
   }
 
