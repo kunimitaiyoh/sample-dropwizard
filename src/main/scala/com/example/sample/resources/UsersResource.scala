@@ -1,6 +1,7 @@
 package com.example.sample.resources
 
 import java.time.Instant
+import javax.annotation.security.PermitAll
 import javax.validation.Valid
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.{BeanParam, FormParam, GET, NotFoundException, POST, Path, PathParam, Produces}

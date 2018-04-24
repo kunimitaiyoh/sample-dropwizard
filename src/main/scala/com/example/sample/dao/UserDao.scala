@@ -6,5 +6,7 @@ import com.example.sample.api.User
 trait UserDao extends Dao[User] {
   def create(user: User): Int
   def find(id: Int): Option[User]
+  def findByMail(mail: String): Option[User]
+  def verify(userName: String, password: String): Option[User]
   def convert(record: util.Map[String, AnyRef]): User
 }

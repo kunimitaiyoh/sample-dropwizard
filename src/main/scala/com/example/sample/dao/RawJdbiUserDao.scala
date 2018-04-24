@@ -4,8 +4,11 @@ import java.sql.Timestamp
 
 import com.example.sample.api.User
 import org.skife.jdbi.v2.DBI
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 class RawJdbiUserDao(dbi: DBI) extends RawJdbiDao[User](dbi) with UserDao {
+  val passwordEncoder = new BCryptPasswordEncoder()
+
   override def create(user: User): Int = {
     this.dbi.withHandle(handle => {
       val created = handle.createStatement("Insert into users (name, mail, password_digest, created) values (:name, :mail, :password_digest, :created)")
@@ -33,6 +36,20 @@ class RawJdbiUserDao(dbi: DBI) extends RawJdbiDao[User](dbi) with UserDao {
       Option(record.first())
         .map(this.convert)
     })
+  }
+
+  override def findByMail(mail: String): Option[User] = {
+    this.dbi.withHandle(handle => {
+      val record = handle.createQuery("Select * from users where mail = :mail")
+        .bind("mail", mail)
+      Option(record.first())
+        .map(this.convert)
+    })
+  }
+
+  override def verify(userName: String, password: String): Option[User] = {
+    this.findByMail(userName)
+      .filter(user => this.passwordEncoder.matches(password, user.passwordDigest))
   }
 
   override def convert(record: java.util.Map[String, AnyRef]): User = {
