@@ -6,7 +6,7 @@ import javax.ws.rs.core.Response
 
 import com.example.sample.api.User
 import com.example.sample.dao.{AccessTokenDao, UserDao}
-import io.dropwizard.auth.{AuthenticationException, Authenticator}
+import io.dropwizard.auth.Authenticator
 
 object Authorizations {
 
