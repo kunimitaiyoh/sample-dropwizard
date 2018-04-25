@@ -53,6 +53,7 @@ object SampleApplication extends Application[SampleConfig] {
         new SampleOAuthAuthenticator(accessTokens, users), config.authenticationCachePolicy))
       .setPrefix("Bearer")
       .buildAuthFilter()
+
     jersey.register(new AuthDynamicFeature(authFilter))
     jersey.register(classOf[RolesAllowedDynamicFeature])
     jersey.register(new AuthValueFactoryProvider.Binder(classOf[User]))
