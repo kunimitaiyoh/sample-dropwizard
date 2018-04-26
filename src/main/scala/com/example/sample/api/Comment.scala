@@ -1,3 +1,5 @@
 package com.example.sample.api
 
-case class Comment()
+import java.time.Instant
+
+case class Comment(id: Int, userId: Int, articleId: Int, body: String, created: Instant)
