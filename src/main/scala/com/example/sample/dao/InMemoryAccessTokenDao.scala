@@ -8,6 +8,8 @@ import com.example.sample.api.{AccessToken, User}
 import scala.collection.mutable
 
 class InMemoryAccessTokenDao extends AccessTokenDao {
+  override val tableName = "access_tokens"
+
   val store: mutable.Map[UUID, AccessToken] = mutable.Map.empty
 
   override def find(id: UUID): Option[AccessToken] = {
