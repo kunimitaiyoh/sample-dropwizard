@@ -12,23 +12,8 @@ class RawJdbiUserDao(dbi: DBI) extends RawJdbiDao[User](dbi) with UserDao {
   val passwordEncoder = new BCryptPasswordEncoder()
 
   override def create(user: User): Int = {
-    this.dbi.withHandle(handle => {
-      val created = handle.createStatement("Insert into users (name, mail, password_digest, created) values (:name, :mail, :password_digest, :created)")
-        .bind("name", user.name)
-        .bind("mail", user.mail)
-        .bind("password_digest", user.passwordDigest)
-        .bind("created", user.created)
-        .executeAndReturnGeneratedKeys()
-      val id = created.first()
-        .values()
-        .stream()
-        .findFirst()
-        .get()
-      id match {
-        case x: java.lang.Long => x.toInt
-        case _ => throw new IllegalArgumentException
-      }
-    })
+    val values = Map("name" -> user.name, "mail" -> user.mail, "password_digest" -> user.passwordDigest, "created" -> user.created)
+    this.insert(values)
   }
 
   override def find(id: Int): Option[User] = {
