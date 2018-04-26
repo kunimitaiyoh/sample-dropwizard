@@ -7,6 +7,8 @@ import org.skife.jdbi.v2.DBI
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 class RawJdbiUserDao(dbi: DBI) extends RawJdbiDao[User](dbi) with UserDao {
+  override val tableName = "users"
+
   val passwordEncoder = new BCryptPasswordEncoder()
 
   override def create(user: User): Int = {

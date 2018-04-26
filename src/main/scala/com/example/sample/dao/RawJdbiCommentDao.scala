@@ -12,8 +12,7 @@ class RawJdbiCommentDao(dbi: DBI) extends RawJdbiDao[Comment](dbi) with CommentD
   val passwordEncoder = new BCryptPasswordEncoder()
 
   override def create(comment: Comment): Int = {
-    val values: Map[String, AnyRef] =
-      Map("user_id" -> comment.userId, "article_id" -> comment.articleId, "body" -> comment.body, "created" -> comment.created)
+    val values = Map("user_id" -> comment.userId, "article_id" -> comment.articleId, "body" -> comment.body, "created" -> comment.created)
     insert(values)
   }
 
