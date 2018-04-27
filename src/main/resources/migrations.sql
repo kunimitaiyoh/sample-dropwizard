@@ -40,3 +40,12 @@ ALTER TABLE users CHANGE password_digest password_digest CHAR(60) NOT NULL;
 ALTER TABLE users CHANGE mail mail VARCHAR(127) NOT NULL;
 ALTER TABLE users ADD UNIQUE (mail);
 
+--changeset sample:6
+
+CREATE TABLE access_tokens (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    token_id VARCHAR(127) NOT NULL UNIQUE,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    created  DATETIME NOT NULL,
+    last_access DATETIME NOT NULL
+);
