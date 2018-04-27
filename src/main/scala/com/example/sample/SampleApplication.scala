@@ -18,6 +18,7 @@ import io.dropwizard.jdbi.DBIFactory
 import io.dropwizard.jersey.jackson.JsonProcessingExceptionMapper
 import io.dropwizard.migrations.MigrationsBundle
 import io.dropwizard.setup.{Bootstrap, Environment}
+import org.glassfish.jersey.media.multipart.MultiPartFeature
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature
 
 object SampleApplication extends Application[SampleConfig] {
@@ -37,6 +38,7 @@ object SampleApplication extends Application[SampleConfig] {
 
   override def run(config: SampleConfig, environment: Environment) : Unit = {
     val jersey = environment.jersey()
+    jersey.register(classOf[MultiPartFeature])
     jersey.register(new JsonProcessingExceptionMapper(true))
 
     val jdbi = new DBIFactory().build(environment, config.database, "mysql")

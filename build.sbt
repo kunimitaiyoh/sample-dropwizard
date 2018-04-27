@@ -14,6 +14,7 @@ libraryDependencies ++= Seq(
   "io.dropwizard" % "dropwizard-jdbi" % "1.1.0",
   "io.dropwizard" % "dropwizard-migrations" % "1.1.0",
   "io.dropwizard" % "dropwizard-auth" % "1.1.0",
+  "io.dropwizard" % "dropwizard-forms" % "1.1.0",
   "org.springframework.security" % "spring-security-web" % "5.0.4.RELEASE",
   "com.datasift.dropwizard.scala" %% "dropwizard-scala-core" % "1.1.0-2",
   "com.datasift.dropwizard.scala" %% "dropwizard-scala-jdbi" % "1.1.0-2",
