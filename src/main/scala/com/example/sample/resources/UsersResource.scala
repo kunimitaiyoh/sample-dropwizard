@@ -1,10 +1,11 @@
 package com.example.sample.resources
 
+import java.io.InputStream
 import java.time.Instant
 import javax.annotation.security.PermitAll
 import javax.validation.Valid
-import javax.ws.rs.core.{Context, MediaType, Response, SecurityContext}
-import javax.ws.rs.{BeanParam, FormParam, GET, NotFoundException, POST, Path, PathParam, Produces}
+import javax.ws.rs.core.{MediaType, Response}
+import javax.ws.rs.{BeanParam, Consumes, FormParam, GET, NotFoundException, POST, Path, PathParam, Produces}
 
 import com.codahale.metrics.annotation.Timed
 import com.example.sample.api.User
@@ -12,12 +13,12 @@ import com.example.sample.dao.UserDao
 import com.example.sample.resources.UsersResource.UserParams
 import io.dropwizard.auth.Auth
 import io.dropwizard.validation.ValidationMethod
+import org.glassfish.jersey.media.multipart.{FormDataContentDisposition, FormDataParam}
 import org.hibernate.validator.constraints.NotEmpty
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 @Path("/users")
 @Produces(Array(MediaType.APPLICATION_JSON))
-@PermitAll
 class UsersResource(val users: UserDao) {
   val passwordEncoder = new BCryptPasswordEncoder()
 
@@ -32,6 +33,7 @@ class UsersResource(val users: UserDao) {
 
   @GET
   @Path("/{id}")
+  @PermitAll
   @Timed
   def get(@PathParam("id") id: Int): User = {
     this.users.find(id) match {
@@ -40,11 +42,15 @@ class UsersResource(val users: UserDao) {
     }
   }
 
-  @GET
-  @Path("/hello")
+  @POST
+  @Path("/avatars")
+  @PermitAll
+  @Consumes(Array(MediaType.MULTIPART_FORM_DATA))
   @Timed
-  def greet(@Auth user: User): Response = {
-    Response.ok(s"Hello, ${user.name}!").build()
+  def createAvatar(@Auth user: User, @FormDataParam("file") file: InputStream,
+      @FormDataParam("file") disposition: FormDataContentDisposition): Response = {
+    System.out.println(disposition.getType)
+    Response.ok().build()
   }
 }
 
