@@ -7,7 +7,7 @@ import com.datasift.dropwizard.scala.jdbi.tweak.ProductResultSetMapperFactory
 import com.example.sample.Authorizations.SampleOAuthAuthenticator
 import com.example.sample.api.User
 import com.example.sample.core.InstantSerializer
-import com.example.sample.dao.{InMemoryAccessTokenDao, RawJdbiUserDao}
+import com.example.sample.dao.{InMemoryAccessTokenDao, RawJdbiAccessTokenDao, RawJdbiUserDao}
 import com.example.sample.resources.{AuthorizationResource, UsersResource}
 import com.fasterxml.jackson.databind.module.SimpleModule
 import io.dropwizard.Application
@@ -46,7 +46,7 @@ object SampleApplication extends Application[SampleConfig] {
 
     jersey.register(jdbi)
 
-    val accessTokens = new InMemoryAccessTokenDao()
+    val accessTokens = new RawJdbiAccessTokenDao(jdbi)
     val users = new RawJdbiUserDao(jdbi)
     jersey.register(users)
 

@@ -12,15 +12,15 @@ class RawJdbiAccessTokenDao(dbi: DBI) extends RawJdbiDao[AccessToken](dbi) with 
 
   override def issue(user: User, created: Instant): AccessToken = {
     val token = AccessToken(randomId(), user.id, created, created)
-    val values = Map("id" -> token.id, "user_id" -> token.userId, "created" -> token.created, "last_access" -> token.lastAccess)
-    val id = insert(values)
+    val values = Map("id" -> token.id.toString, "user_id" -> token.userId, "created" -> token.created, "last_access" -> token.lastAccess)
+    this.insertWithPrimaryKey(values)
     token
   }
 
   override def find(id: UUID): Option[AccessToken] = {
-    this.dbi.withHandle(handle => {
+    this.dbi.inTransaction((handle, status) => {
       val record = handle.createQuery(s"Select id, user_id, created, last_access from $tableName where id = :id")
-        .bind("id", id)
+        .bind("id", id.toString)
       Option(record.first())
         .map(this.convert)
     })
