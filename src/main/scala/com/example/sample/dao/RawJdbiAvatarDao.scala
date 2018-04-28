@@ -9,19 +9,21 @@ class RawJdbiAvatarDao(dbi: DBI) extends RawJdbiDao[Avatar](dbi) with AvatarDao 
   override val tableName = "avatars"
 
   override def create(avatar: Avatar): Int = {
+    this.deleteByUserId(avatar.userId)
+
     val values = Map("name" -> avatar.name, "user_id" -> avatar.userId, "data" -> avatar.data,
       "width" -> avatar.width, "height" -> avatar.height, "created" -> avatar.created)
     this.insertWithPrimaryKey(values)
   }
 
-  override def findByUser(user: User): Option[Avatar] = {
-    this.find("user_id" -> user.id, query => {
+  override def findByUserId(userId: Int): Option[Avatar] = {
+    this.find("user_id" -> userId, query => {
       Option(query.first())
         .map(this.convert)
     })
   }
 
-  override def deleteByUser(user: User): Int = this.delete("user_id", user.id)
+  override def deleteByUserId(userId: Int): Int = this.delete("user_id", userId)
 
   protected def convert(record: java.util.Map[String, AnyRef]): Avatar = {
     val name = record.get("name").asInstanceOf[String]
