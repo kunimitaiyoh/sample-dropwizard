@@ -7,7 +7,7 @@ import com.datasift.dropwizard.scala.jdbi.tweak.ProductResultSetMapperFactory
 import com.example.sample.Authorizations.SampleOAuthAuthenticator
 import com.example.sample.api.User
 import com.example.sample.core.InstantSerializer
-import com.example.sample.dao.{InMemoryAccessTokenDao, RawJdbiAccessTokenDao, RawJdbiUserDao}
+import com.example.sample.dao.{InMemoryAccessTokenDao, RawJdbiAccessTokenDao, RawJdbiAvatarDao, RawJdbiUserDao}
 import com.example.sample.resources.{AuthorizationResource, UsersResource}
 import com.fasterxml.jackson.databind.module.SimpleModule
 import io.dropwizard.Application
@@ -48,6 +48,7 @@ object SampleApplication extends Application[SampleConfig] {
 
     val accessTokens = new RawJdbiAccessTokenDao(jdbi)
     val users = new RawJdbiUserDao(jdbi)
+    val avatars = new RawJdbiAvatarDao(jdbi)
     jersey.register(users)
 
     val authFilter = new OAuthCredentialAuthFilter.Builder[User]()
@@ -60,7 +61,7 @@ object SampleApplication extends Application[SampleConfig] {
     jersey.register(classOf[RolesAllowedDynamicFeature])
     jersey.register(new AuthValueFactoryProvider.Binder(classOf[User]))
 
-    jersey.register(new UsersResource(users))
+    jersey.register(new UsersResource(users, avatars))
     jersey.register(new AuthorizationResource(accessTokens, users))
   }
 }

@@ -1,5 +1,6 @@
 package com.example.sample.resources
 
+import java.awt.image.BufferedImage
 import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URLConnection
 import java.time.Instant
@@ -12,18 +13,19 @@ import javax.ws.rs.{BeanParam, Consumes, FormParam, GET, NotFoundException, POST
 
 import com.codahale.metrics.annotation.Timed
 import com.example.sample.api.{Avatar, User}
-import com.example.sample.dao.UserDao
+import com.example.sample.dao.{AvatarDao, UserDao}
 import com.example.sample.resources.UsersResource.{AvatarParams, UserParams}
 import com.google.common.io.ByteStreams
 import io.dropwizard.auth.Auth
 import io.dropwizard.validation.ValidationMethod
+import liquibase.util.file.FilenameUtils
 import org.glassfish.jersey.media.multipart.{FormDataContentDisposition, FormDataParam}
 import org.hibernate.validator.constraints.NotEmpty
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 @Path("/users")
 @Produces(Array(MediaType.APPLICATION_JSON))
-class UsersResource(val users: UserDao) {
+class UsersResource(val users: UserDao, val avatars: AvatarDao) {
   val passwordEncoder = new BCryptPasswordEncoder()
 
   @POST
@@ -51,11 +53,25 @@ class UsersResource(val users: UserDao) {
   @PermitAll
   @Consumes(Array(MediaType.MULTIPART_FORM_DATA))
   @Timed
-  def createAvatar(@Auth user: User, @Valid @BeanParam avatar: AvatarParams): Response = {
-    val bytes = ByteStreams.toByteArray(avatar.file)
-    val contentType = URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(bytes))
+  def createAvatar(@Auth user: User, @Valid @BeanParam params: AvatarParams): Response = {
+    val avatar = params.toAvatar(UUID.randomUUID(), Instant.now(), user)
+    this.avatars.create(avatar)
+    Response.ok().build()
+  }
 
-    Response.ok(bytes, contentType).build()
+  @GET
+  @Path("/avatars/{name}")
+  @Consumes(Array(MediaType.MULTIPART_FORM_DATA))
+  @Timed
+  def getAvatar(@PathParam("name") name: String): Response = {
+    this.avatars.find(name) match {
+      case Some(avatar) =>
+        val contentType = URLConnection.guessContentTypeFromName(avatar.name)
+        Response.ok(avatar.data, contentType)
+          .build()
+      case None =>
+        throw new NotFoundException("No such avatar.")
+    }
   }
 }
 
@@ -92,13 +108,11 @@ object UsersResource {
 
     lazy val data: Array[Byte] = ByteStreams.toByteArray(this.file)
 
-    lazy val image: ImageReader = {
-      ImageIO.getImageReaders(new ByteArrayInputStream(this.data)).next()
+    lazy val image: Option[BufferedImage] = {
+      Option(ImageIO.read(new ByteArrayInputStream(this.data)))
     }
 
-    lazy val extension: String = {
-      this.image.getFormatName.toLowerCase
-    }
+    lazy val extension: String = FilenameUtils.getExtension(this.disposition.getFileName).toLowerCase
 
     @ValidationMethod(message = "file size must be 2 MB or less.")
     def hasValidSize: Boolean = {
@@ -108,16 +122,15 @@ object UsersResource {
     @ValidationMethod(message = "file format must be PNG, JPEG, or GIF.")
     def hasValidType: Boolean = {
       try {
-        List("png", "jpeg", "gif")
-          .exists(this.extension.endsWith)
+        this.image.isDefined && List("png", "jpg", "jpeg", "gif").exists(this.extension.endsWith)
       } catch {
-        case e: NoSuchElementException => false
+        case _: NoSuchElementException => false
       }
     }
 
     def toAvatar(id: UUID, created: Instant, user: User): Avatar = {
-      val bufferedImage = ImageIO.read(new ByteArrayInputStream(this.data))
-      Avatar(s"$id.$extension", user.id, this.data, bufferedImage.getWidth, bufferedImage.getHeight, created)
+      val image = this.image.get
+      Avatar(s"$id.$extension", user.id, this.data, image.getWidth, image.getHeight, created)
     }
   }
 }

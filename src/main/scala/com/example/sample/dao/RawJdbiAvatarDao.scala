@@ -16,8 +16,8 @@ class RawJdbiAvatarDao(dbi: DBI) extends RawJdbiDao[Avatar](dbi) with AvatarDao 
     this.insertWithPrimaryKey(values)
   }
 
-  override def findByUserId(userId: Int): Option[Avatar] = {
-    this.find("user_id" -> userId, query => {
+  override def find(name: String): Option[Avatar] = {
+    this.find("name" -> name, query => {
       Option(query.first())
         .map(this.convert)
     })
