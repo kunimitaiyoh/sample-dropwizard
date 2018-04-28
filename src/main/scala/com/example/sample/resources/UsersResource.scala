@@ -1,6 +1,8 @@
 package com.example.sample.resources
 
-import java.io.InputStream
+import java.io.{ByteArrayInputStream, InputStream}
+import java.net.URLConnection
+import java.nio.charset.StandardCharsets
 import java.time.Instant
 import javax.annotation.security.PermitAll
 import javax.validation.Valid
@@ -10,7 +12,8 @@ import javax.ws.rs.{BeanParam, Consumes, FormParam, GET, NotFoundException, POST
 import com.codahale.metrics.annotation.Timed
 import com.example.sample.api.User
 import com.example.sample.dao.UserDao
-import com.example.sample.resources.UsersResource.UserParams
+import com.example.sample.resources.UsersResource.{AvatarParams, UserParams}
+import com.google.common.io.ByteStreams
 import io.dropwizard.auth.Auth
 import io.dropwizard.validation.ValidationMethod
 import org.glassfish.jersey.media.multipart.{FormDataContentDisposition, FormDataParam}
@@ -47,10 +50,11 @@ class UsersResource(val users: UserDao) {
   @PermitAll
   @Consumes(Array(MediaType.MULTIPART_FORM_DATA))
   @Timed
-  def createAvatar(@Auth user: User, @FormDataParam("file") file: InputStream,
-      @FormDataParam("file") disposition: FormDataContentDisposition): Response = {
-    System.out.println(disposition.getType)
-    Response.ok().build()
+  def createAvatar(@Auth user: User, @Valid @BeanParam avatar: AvatarParams): Response = {
+    val bytes = ByteStreams.toByteArray(avatar.file)
+    val contentType = URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(bytes))
+
+    Response.ok(bytes, contentType).build()
   }
 }
 
@@ -75,6 +79,28 @@ object UsersResource {
     @ValidationMethod(message = "password and passwordConfirm must be same.")
     def hasSamePasswords: Boolean = {
       this.password == this.passwordConfirm
+    }
+  }
+
+  class AvatarParams() {
+    @FormDataParam("file")
+    var file: InputStream = _
+
+    @FormDataParam("file")
+    var disposition: FormDataContentDisposition = _
+
+    @ValidationMethod(message = "file format must be PNG, JPEG, or GIF.")
+    def hasValidExtension: Boolean = {
+      val name = new String(this.disposition.getFileName.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8)
+      val lowered = name.toLowerCase
+
+      List("png", "jpg", "jpeg", "gif")
+        .exists(lowered.endsWith)
+    }
+
+    @ValidationMethod(message = "file size must be 2 MB or less.")
+    def isValidSize: Boolean = {
+      this.disposition.getSize <= 2 * 1024 * 1024
     }
   }
 }
