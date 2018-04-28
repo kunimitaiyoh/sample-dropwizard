@@ -23,6 +23,15 @@ class RawJdbiAvatarDao(dbi: DBI) extends RawJdbiDao[Avatar](dbi) with AvatarDao 
     })
   }
 
+  override def findNameByUserId(userId: Int): Option[String] = {
+    this.dbi.withHandle(handle => {
+      val record = handle.createQuery(s"Select name from ${this.tableName} where user_id = :user_id")
+        .bind("user_id", userId)
+        .first()
+      Option(record).map(_.get("name").asInstanceOf[String])
+    })
+  }
+
   override def deleteByUserId(userId: Int): Int = this.delete("user_id", userId)
 
   protected def convert(record: java.util.Map[String, AnyRef]): Avatar = {
