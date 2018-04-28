@@ -43,8 +43,7 @@ ALTER TABLE users ADD UNIQUE (mail);
 --changeset sample:6
 
 CREATE TABLE access_tokens (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    token_id VARCHAR(127) NOT NULL UNIQUE,
+    id VARCHAR(127) PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     created  DATETIME NOT NULL,
     last_access DATETIME NOT NULL
