@@ -2,15 +2,16 @@ package com.example.sample.resources
 
 import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URLConnection
-import java.nio.charset.StandardCharsets
 import java.time.Instant
+import java.util.UUID
 import javax.annotation.security.PermitAll
+import javax.imageio.{ImageIO, ImageReader}
 import javax.validation.Valid
 import javax.ws.rs.core.{MediaType, Response}
 import javax.ws.rs.{BeanParam, Consumes, FormParam, GET, NotFoundException, POST, Path, PathParam, Produces}
 
 import com.codahale.metrics.annotation.Timed
-import com.example.sample.api.User
+import com.example.sample.api.{Avatar, User}
 import com.example.sample.dao.UserDao
 import com.example.sample.resources.UsersResource.{AvatarParams, UserParams}
 import com.google.common.io.ByteStreams
@@ -89,18 +90,34 @@ object UsersResource {
     @FormDataParam("file")
     var disposition: FormDataContentDisposition = _
 
-    @ValidationMethod(message = "file format must be PNG, JPEG, or GIF.")
-    def hasValidExtension: Boolean = {
-      val name = new String(this.disposition.getFileName.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8)
-      val lowered = name.toLowerCase
+    lazy val data: Array[Byte] = ByteStreams.toByteArray(this.file)
 
-      List("png", "jpg", "jpeg", "gif")
-        .exists(lowered.endsWith)
+    lazy val image: ImageReader = {
+      ImageIO.getImageReaders(new ByteArrayInputStream(this.data)).next()
+    }
+
+    lazy val extension: String = {
+      this.image.getFormatName.toLowerCase
     }
 
     @ValidationMethod(message = "file size must be 2 MB or less.")
-    def isValidSize: Boolean = {
-      this.disposition.getSize <= 2 * 1024 * 1024
+    def hasValidSize: Boolean = {
+      this.data.length <= 2 * 1024 * 1024
+    }
+
+    @ValidationMethod(message = "file format must be PNG, JPEG, or GIF.")
+    def hasValidType: Boolean = {
+      try {
+        List("png", "jpeg", "gif")
+          .exists(this.extension.endsWith)
+      } catch {
+        case e: NoSuchElementException => false
+      }
+    }
+
+    def toAvatar(id: UUID, created: Instant, user: User): Avatar = {
+      val bufferedImage = ImageIO.read(new ByteArrayInputStream(this.data))
+      Avatar(s"$id.$extension", user.id, this.data, bufferedImage.getWidth, bufferedImage.getHeight, created)
     }
   }
 }
