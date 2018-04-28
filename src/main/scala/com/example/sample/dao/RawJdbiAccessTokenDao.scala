@@ -1,5 +1,6 @@
 package com.example.sample.dao
 
+import java.sql.Timestamp
 import java.time.Instant
 import java.util.UUID
 
@@ -11,16 +12,30 @@ class RawJdbiAccessTokenDao(dbi: DBI) extends RawJdbiDao[AccessToken](dbi) with 
 
   override def issue(user: User, created: Instant): AccessToken = {
     val token = AccessToken(randomId(), user.id, created, created)
-    ???
+    val values = Map("id" -> token.id, "user_id" -> token.userId, "created" -> token.created, "last_access" -> token.lastAccess)
+    val id = insert(values)
+    token
   }
 
   override def find(id: UUID): Option[AccessToken] = {
-    ???
+    this.dbi.withHandle(handle => {
+      val record = handle.createQuery(s"Select id, user_id, created, last_access from $tableName where id = :id")
+        .bind("id", id)
+      Option(record.first())
+        .map(this.convert)
+    })
   }
 
   override def update(token: AccessToken, lastAccess: Instant): AccessToken = {
-    val updated = token.copy(lastAccess = lastAccess)
-    ???
+    throw new UnsupportedOperationException()
+  }
+
+  def convert(record: java.util.Map[String, AnyRef]): AccessToken = {
+    val id = UUID.fromString(record.get("id").asInstanceOf[String])
+    val userId = record.get("user_id").asInstanceOf[Int]
+    val created = record.get("created").asInstanceOf[Timestamp].toInstant
+    val lastAccess = record.get("last_access").asInstanceOf[Timestamp].toInstant
+    AccessToken(id, userId, created, lastAccess)
   }
 
   protected def randomId(): UUID = UUID.randomUUID()
