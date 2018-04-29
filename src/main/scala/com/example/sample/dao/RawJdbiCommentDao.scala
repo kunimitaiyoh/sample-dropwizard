@@ -6,6 +6,8 @@ import com.example.sample.api.Comment
 import org.skife.jdbi.v2.DBI
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
+import collection.JavaConverters._
+
 class RawJdbiCommentDao(dbi: DBI) extends RawJdbiDao[Comment](dbi) with CommentDao {
   override val tableName = "comments"
 
@@ -18,11 +20,16 @@ class RawJdbiCommentDao(dbi: DBI) extends RawJdbiDao[Comment](dbi) with CommentD
 
   override def find(id: Int): Option[Comment] = {
     this.dbi.withHandle(handle => {
-      val record = handle.createQuery(s"Select id, user_id, article_id, body, created from $tableName where id = :id")
+      val record = handle.createQuery(s"Select id, user_id, article_id, body, created from ${this.tableName} where id = :id")
         .bind("id", id)
       Option(record.first())
         .map(this.convert)
     })
+  }
+
+  override def findManyByArticleId(articleId: Int): Seq[Comment] = {
+    this.find("article_id" -> articleId, _.list().asScala.map(this.convert))
+      .sortBy(_.created)
   }
 
   def convert(record: java.util.Map[String, AnyRef]): Comment = {

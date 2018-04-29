@@ -18,7 +18,7 @@ class RawJdbiAccessTokenDao(dbi: DBI) extends RawJdbiDao[AccessToken](dbi) with 
   }
 
   override def find(id: UUID): Option[AccessToken] = {
-    this.dbi.inTransaction((handle, status) => {
+    this.dbi.inTransaction((handle, _) => {
       val record = handle.createQuery(s"Select id, user_id, created, last_access from $tableName where id = :id")
         .bind("id", id.toString)
       Option(record.first())
