@@ -2,7 +2,7 @@ package com.example.sample.dao
 
 import java.sql.Timestamp
 
-import com.example.sample.api.{Avatar, User}
+import com.example.sample.api.Avatar
 import org.skife.jdbi.v2.DBI
 
 class RawJdbiAvatarDao(dbi: DBI) extends RawJdbiDao[Avatar](dbi) with AvatarDao {
