@@ -39,7 +39,7 @@ class RawJdbiUserDao(dbi: DBI) extends RawJdbiDao[User](dbi) with UserDao {
   override def findByArticleId(articleId: Int): Seq[User] = {
     this.dbi.withHandle(handle => {
       val record = handle.createQuery(s"Select users.id, users.name, users.mail, users.password_digest, users.created " +
-        s"from ${this.tableName} left join articles on users.id = articles.user_id where article.id = :article_id")
+        s"from ${this.tableName} left join articles on users.id = articles.user_id where articles.id = :article_id")
         .bind("article_id", articleId)
       record.list().asScala.map(this.convert)
     })

@@ -3,8 +3,9 @@ package com.example.sample.resources
 import java.time.Instant
 import javax.annotation.security.PermitAll
 import javax.validation.Valid
+import javax.validation.constraints.NotNull
 import javax.ws.rs.core.MediaType
-import javax.ws.rs.{BeanParam, GET, POST, Path, PathParam, Produces, WebApplicationException}
+import javax.ws.rs.{BeanParam, FormParam, GET, POST, Path, PathParam, Produces, WebApplicationException}
 
 import com.example.sample.api.{Article, Comment, User}
 import com.example.sample.dao.{ArticleDao, CommentDao, UserDao}
@@ -26,8 +27,9 @@ class ArticlesResource(val articles: ArticleDao, val comments: CommentDao, val u
   }
 
   @GET
+  @Path("/{id}")
   @PermitAll
-  def get(@PathParam("id") @NotEmpty id: Int): {val article: Article; val comments: Seq[Comment] } = {
+  def get(@PathParam("id") @NotNull id: Int): ArticleResponse = {
     this.articles.find(id) match {
       case Some(article) =>
         val comments = this.comments.findManyByArticleId(id)
@@ -54,7 +56,12 @@ object ArticlesResource {
   class ArticleParams {
     var id: Int = 0
 
+    @FormParam("title")
+    @NotEmpty
     var title: String = _
+
+    @FormParam("body")
+    @NotEmpty
     var body: String = _
 
     def toArticle(user: User, created: Instant): Article = {
@@ -65,7 +72,12 @@ object ArticlesResource {
   class CommentParams {
     var id: Int = 0
 
-    var title: String = _
+    @FormParam("articleId")
+    @NotEmpty
+    var articleId: String = _
+
+    @FormParam("body")
+    @NotEmpty
     var body: String = _
 
     def toComment(user: User, articleId: Int, created: Instant): Comment = {

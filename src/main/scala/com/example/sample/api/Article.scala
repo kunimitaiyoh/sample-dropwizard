@@ -2,4 +2,21 @@ package com.example.sample.api
 
 import java.time.Instant
 
-case class Article(id: Int, userId: Int, title: String, body: String, created: Instant)
+import scala.beans.BeanProperty
+
+case class Article(
+  @BeanProperty
+  id: Int,
+
+  @BeanProperty
+  userId: Int,
+
+  @BeanProperty
+  title: String,
+
+  @BeanProperty
+  body: String,
+
+  @BeanProperty
+  created: Instant
+)
