@@ -1,5 +1,8 @@
 # Dropwizard Sample Application
 
+[![Build Status](https://travis-ci.org/kunimitaiyoh/sample-dropwizard.svg)](https://travis-ci.org/kunimitaiyoh/sample-dropwizard)
+[![codecov](https://codecov.io/gh/kunimitaiyoh/sample-dropwizard/branch/develop/graph/badge.svg)](https://codecov.io/gh/kunimitaiyoh/sample-dropwizard)
+
 ## Running
 
 ### Run on local JVM
