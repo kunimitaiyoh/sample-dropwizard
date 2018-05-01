@@ -3,16 +3,16 @@ package com.example.sample
 import java.time.Instant
 
 import com.codahale.metrics.MetricRegistry
+import com.datasift.dropwizard.scala.ScalaApplication
 import com.datasift.dropwizard.scala.jdbi.tweak.ProductResultSetMapperFactory
 import com.example.sample.Authorizations.SampleOAuthAuthenticator
 import com.example.sample.api.User
 import com.example.sample.core.InstantSerializer
-import com.example.sample.dao.{InMemoryAccessTokenDao, RawJdbiAccessTokenDao, RawJdbiAvatarDao, RawJdbiUserDao}
-import com.example.sample.resources.{AuthorizationResource, UsersResource}
+import com.example.sample.dao.{RawJdbiAccessTokenDao, RawJdbiArticleDao, RawJdbiAvatarDao, RawJdbiCommentDao, RawJdbiUserDao}
+import com.example.sample.resources.{ArticlesResource, AuthorizationResource, UsersResource}
 import com.fasterxml.jackson.databind.module.SimpleModule
-import io.dropwizard.Application
-import io.dropwizard.auth.{AuthDynamicFeature, AuthValueFactoryProvider, CachingAuthenticator}
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter
+import io.dropwizard.auth.{AuthDynamicFeature, AuthValueFactoryProvider, CachingAuthenticator}
 import io.dropwizard.db.DataSourceFactory
 import io.dropwizard.jdbi.DBIFactory
 import io.dropwizard.jersey.jackson.JsonProcessingExceptionMapper
@@ -21,12 +21,8 @@ import io.dropwizard.setup.{Bootstrap, Environment}
 import org.glassfish.jersey.media.multipart.MultiPartFeature
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature
 
-object SampleApplication extends Application[SampleConfig] {
-  def main(args: Array[String]): Unit = {
-    run(args:_*)
-  }
-
-  override def initialize(bootstrap: Bootstrap[SampleConfig]): Unit = {
+object SampleApplication extends ScalaApplication[SampleConfig] {
+  override def init(bootstrap: Bootstrap[SampleConfig]) {
     bootstrap.addBundle(new MigrationsBundle[SampleConfig] {
       override def getDataSourceFactory(configuration: SampleConfig): DataSourceFactory = configuration.database
 
@@ -49,6 +45,8 @@ object SampleApplication extends Application[SampleConfig] {
     val accessTokens = new RawJdbiAccessTokenDao(jdbi)
     val users = new RawJdbiUserDao(jdbi)
     val avatars = new RawJdbiAvatarDao(jdbi)
+    val articles = new RawJdbiArticleDao(jdbi)
+    val comments = new RawJdbiCommentDao(jdbi)
     jersey.register(users)
 
     val authFilter = new OAuthCredentialAuthFilter.Builder[User]()
@@ -63,5 +61,6 @@ object SampleApplication extends Application[SampleConfig] {
 
     jersey.register(new UsersResource(users, avatars))
     jersey.register(new AuthorizationResource(accessTokens, users))
+    jersey.register(new ArticlesResource(articles, comments, users))
   }
 }
