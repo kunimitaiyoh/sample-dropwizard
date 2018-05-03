@@ -1,9 +1,8 @@
 package jp.radiosphere
 
-class EntityDao {
-
+abstract class EntityDao[T] {
+  abstract def getEntityClass: Class[T]
 }
 
 object EntityDao {
-
 }
