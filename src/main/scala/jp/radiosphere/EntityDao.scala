@@ -1,7 +1,10 @@
 package jp.radiosphere
 
+import jp.radiosphere.DaoConfig.DaoContext
+
 abstract class EntityDao[T] {
-  abstract val entityClass: Class[T]
+  val context: DaoContext[T]
+  val config: DaoConfig[T]
 }
 
 object EntityDao {
