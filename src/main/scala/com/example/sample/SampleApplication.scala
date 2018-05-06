@@ -1,6 +1,8 @@
 package com.example.sample
 
 import java.time.Instant
+import java.util
+import javax.servlet.DispatcherType
 
 import com.codahale.metrics.MetricRegistry
 import com.datasift.dropwizard.scala.ScalaApplication
@@ -18,6 +20,7 @@ import io.dropwizard.jdbi.DBIFactory
 import io.dropwizard.jersey.jackson.JsonProcessingExceptionMapper
 import io.dropwizard.migrations.MigrationsBundle
 import io.dropwizard.setup.{Bootstrap, Environment}
+import org.eclipse.jetty.servlets.CrossOriginFilter
 import org.glassfish.jersey.media.multipart.MultiPartFeature
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature
 
@@ -41,6 +44,13 @@ object SampleApplication extends ScalaApplication[SampleConfig] {
     jdbi.registerMapper(new ProductResultSetMapperFactory)
 
     jersey.register(jdbi)
+
+    val servlets = environment.servlets()
+    val cors = servlets.addFilter("CORS", classOf[CrossOriginFilter])
+    cors.setInitParameter("allowedOrigins", "*")
+    cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin")
+    cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD")
+    cors.addMappingForUrlPatterns(util.EnumSet.allOf(classOf[DispatcherType]), true, "/*")
 
     val accessTokens = new RawJdbiAccessTokenDao(jdbi)
     val users = new RawJdbiUserDao(jdbi)
