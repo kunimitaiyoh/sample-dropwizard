@@ -33,7 +33,6 @@ class AuthorizationResource(val accessTokens: AccessTokenDao, val users: UserDao
 
 object AuthorizationResource {
   class AuthenticationParams() {
-    @NotEmpty
     @FormParam("grant_type")
     var grantType: String = _
 

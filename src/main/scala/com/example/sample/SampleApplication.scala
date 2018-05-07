@@ -48,7 +48,7 @@ object SampleApplication extends ScalaApplication[SampleConfig] {
     val servlets = environment.servlets()
     val cors = servlets.addFilter("CORS", classOf[CrossOriginFilter])
     cors.setInitParameter("allowedOrigins", "*")
-    cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin")
+    cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin,Authorization")
     cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD")
     cors.addMappingForUrlPatterns(util.EnumSet.allOf(classOf[DispatcherType]), true, "/*")
 
