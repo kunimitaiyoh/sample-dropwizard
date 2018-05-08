@@ -4,8 +4,8 @@ import java.time.Instant
 import javax.annotation.security.PermitAll
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
-import javax.ws.rs.core.MediaType
-import javax.ws.rs.{BeanParam, FormParam, GET, POST, Path, PathParam, Produces, WebApplicationException}
+import javax.ws.rs.core.{MediaType, Response}
+import javax.ws.rs.{BeanParam, FormParam, GET, POST, Path, PathParam, Produces, QueryParam, WebApplicationException}
 
 import com.example.sample.api.{Article, Comment, User}
 import com.example.sample.dao.{ArticleDao, CommentDao, UserDao}
@@ -18,6 +18,13 @@ import scala.beans.BeanProperty
 @Path("/articles")
 @Produces(Array(MediaType.APPLICATION_JSON))
 class ArticlesResource(val articles: ArticleDao, val comments: CommentDao, val users: UserDao) {
+  @GET
+  @PermitAll
+  def getList(@Auth user: User): Response = {
+    val items = articles.searchByUserId(user.id)
+    Response.ok(Map("articles" -> items)).build()
+  }
+
   @POST
   @PermitAll
   def create(@Auth user: User, @Valid @BeanParam params: ArticleParams): Article = {
@@ -85,7 +92,7 @@ object ArticlesResource {
     }
   }
 
-  case class ArticleResponse(
+  case class ArticleResponse (
     @BeanProperty article: Article,
     @BeanProperty comments: Seq[Comment],
     @BeanProperty users: Seq[User]
