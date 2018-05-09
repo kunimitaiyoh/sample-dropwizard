@@ -9,7 +9,7 @@ import collection.JavaConverters._
 abstract class JdbiEntityDao[T](val db: DBI) extends EntityDao[T] {
   val entityClass: Class[T]
   val context: DaoContext[T] = new DaoContext(this.entityClass)
-  val config: DaoConfig[T] = new DefaultConfig(this.context)
+  val config: DaoConfig = new DefaultConfig(this.context)
 
   def insert(entity: T): Long = {
     this.db.inTransaction((handle, _) => {

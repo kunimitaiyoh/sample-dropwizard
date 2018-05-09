@@ -4,7 +4,7 @@ import jp.radiosphere.DaoConfig.DaoContext
 
 abstract class EntityDao[T] {
   val context: DaoContext[T]
-  val config: DaoConfig[T]
+  val config: DaoConfig
 }
 
 object EntityDao {
