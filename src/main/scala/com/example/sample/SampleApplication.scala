@@ -9,7 +9,7 @@ import com.datasift.dropwizard.scala.ScalaApplication
 import com.datasift.dropwizard.scala.jdbi.tweak.ProductResultSetMapperFactory
 import com.example.sample.Authorizations.SampleOAuthAuthenticator
 import com.example.sample.api.User
-import com.example.sample.core.InstantSerializer
+import com.example.sample.core.{AppValidationExceptionMapper, DictionaryValidationExceptionMapper, InstantSerializer}
 import com.example.sample.dao.{RawJdbiAccessTokenDao, RawJdbiArticleDao, RawJdbiAvatarDao, RawJdbiCommentDao, RawJdbiUserDao}
 import com.example.sample.resources.{ArticlesResource, AuthorizationResource, UsersResource}
 import com.fasterxml.jackson.databind.module.SimpleModule
@@ -17,8 +17,10 @@ import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter
 import io.dropwizard.auth.{AuthDynamicFeature, AuthValueFactoryProvider, CachingAuthenticator}
 import io.dropwizard.db.DataSourceFactory
 import io.dropwizard.jdbi.DBIFactory
+import io.dropwizard.jersey.errors.{EarlyEofExceptionMapper, LoggingExceptionMapper}
 import io.dropwizard.jersey.jackson.JsonProcessingExceptionMapper
 import io.dropwizard.migrations.MigrationsBundle
+import io.dropwizard.server.DefaultServerFactory
 import io.dropwizard.setup.{Bootstrap, Environment}
 import org.eclipse.jetty.servlets.CrossOriginFilter
 import org.glassfish.jersey.media.multipart.MultiPartFeature
@@ -38,7 +40,16 @@ object SampleApplication extends ScalaApplication[SampleConfig] {
   override def run(config: SampleConfig, environment: Environment) : Unit = {
     val jersey = environment.jersey()
     jersey.register(classOf[MultiPartFeature])
+
+    /**
+      * replacing Dropwizard's default exception mappers.
+      * @see https://stackoverflow.com/questions/29492359/how-to-change-the-validation-error-behaviour-for-dropwizard
+      */
+    config.getServerFactory.asInstanceOf[DefaultServerFactory].setRegisterDefaultExceptionMappers(false)
+    jersey.register(DictionaryValidationExceptionMapper.withDefault())
+    jersey.register(new LoggingExceptionMapper[Throwable]() {})
     jersey.register(new JsonProcessingExceptionMapper(true))
+    jersey.register(new EarlyEofExceptionMapper)
 
     val jdbi = new DBIFactory().build(environment, config.database, "mysql")
     jdbi.registerMapper(new ProductResultSetMapperFactory)
