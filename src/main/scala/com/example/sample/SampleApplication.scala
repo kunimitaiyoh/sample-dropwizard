@@ -9,7 +9,7 @@ import com.datasift.dropwizard.scala.ScalaApplication
 import com.datasift.dropwizard.scala.jdbi.tweak.ProductResultSetMapperFactory
 import com.example.sample.Authorizations.SampleOAuthAuthenticator
 import com.example.sample.api.User
-import com.example.sample.core.{AppValidationExceptionMapper, DictionaryValidationExceptionMapper, InstantSerializer}
+import com.example.sample.core.{DictionaryValidationExceptionMapper, InstantSerializer}
 import com.example.sample.dao.{RawJdbiAccessTokenDao, RawJdbiArticleDao, RawJdbiAvatarDao, RawJdbiCommentDao, RawJdbiUserDao}
 import com.example.sample.resources.{ArticlesResource, AuthorizationResource, UsersResource}
 import com.fasterxml.jackson.databind.module.SimpleModule
