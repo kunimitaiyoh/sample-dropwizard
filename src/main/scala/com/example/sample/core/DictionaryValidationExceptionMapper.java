@@ -1,5 +1,6 @@
 package com.example.sample.core;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import io.dropwizard.jersey.validation.ConstraintMessage;
 import io.dropwizard.jersey.validation.JerseyViolationException;
@@ -7,10 +8,12 @@ import io.dropwizard.validation.ValidationMethod;
 import org.glassfish.jersey.server.validation.internal.LocalizationMessages;
 import org.glassfish.jersey.server.validation.internal.ValidationHelper;
 
+import javax.annotation.Nullable;
 import javax.validation.ConstraintViolation;
 import javax.validation.Path;
 import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
+import javax.validation.metadata.ConstraintDescriptor;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -54,55 +57,62 @@ public final class DictionaryValidationExceptionMapper implements ExceptionMappe
     static Object toEntity(JerseyViolationException exception, Config conf) {
         Collection<ConstraintViolation<?>> violations = exception.getConstraintViolations();
 
-
-        Map<String, List<Object>> fieldErrors = new HashMap<>();
-        List<Object> generalErrors = new ArrayList<>();
-
+        List<Object> errors = new ArrayList<>();
         for (ConstraintViolation v : violations) {
             Path path = v.getPropertyPath();
-            Object element = conf.violationMapper.apply(v, exception);
+
             boolean isMethod = v.getConstraintDescriptor().getAnnotation() instanceof ValidationMethod;
             if (isMethod || Iterables.size(path) < 2) {
-                generalErrors.add(element);
+                Object element = conf.violationMapper.map(v, null, exception);
+                errors.add(element);
             } else {
                 String name = String.join(".", () -> StreamSupport.stream(Iterables.skip(path, 2).spliterator(), false).<CharSequence>map(Path.Node::getName).iterator());
-                fieldErrors.computeIfAbsent(name, k -> new ArrayList<>()).add(element);
+                Object element = conf.violationMapper.map(v, name, exception);
+                errors.add(element);
             }
         }
 
-        Map<String, Object> payload = new HashMap<>();
-        payload.put(conf.fieldAttributeName, fieldErrors);
-        payload.put(conf.generalAttributeName, generalErrors);
-
         Map<String, Object> response = new HashMap<>();
-        response.put(conf.attributeName, payload);
+        response.put("validationProtocol", "0.0");
+        response.put("method", "violations");
+        response.put(conf.attributeName, errors);
         return response;
     }
 
     public static class Config {
-        public static final Config DEFAULT = new Config("errors", "fields", "general", Config::defaultMapper);
+        public static final Config DEFAULT = new Config("errors", Config::defaultMapper);
 
         final String attributeName;
-        final String fieldAttributeName;
-        final String generalAttributeName;
-        final BiFunction<ConstraintViolation, JerseyViolationException, Object> violationMapper;
+        final ViolationMapper violationMapper;
 
         public Config(
                 @NotNull String attributeName,
-                @NotNull String fieldAttributeName,
-                @NotNull String generalAttributeName,
-                @NotNull BiFunction<ConstraintViolation, JerseyViolationException, Object> violationMapper) {
+                @NotNull ViolationMapper violationMapper) {
             this.attributeName = attributeName;
-            this.fieldAttributeName = fieldAttributeName;
-            this.generalAttributeName = generalAttributeName;
             this.violationMapper = violationMapper;
         }
 
-        static Object defaultMapper(ConstraintViolation v, JerseyViolationException e) {
+        static Object defaultMapper(ConstraintViolation v, @Nullable String fieldName, JerseyViolationException e) {
             Map<String, Object> element = new HashMap<>();
             String message = ConstraintMessage.getMessage(v, e.getInvocable());
+            ConstraintDescriptor<?> descriptor = v.getConstraintDescriptor();
+
+            Map<String, Object> attributes = new HashMap<>(descriptor.getAttributes());
+            attributes.remove("message");
+            attributes.remove("groups");
+            attributes.remove("payload");
+
+            Optional.ofNullable(fieldName).ifPresent(f -> element.put("field", f));
+            element.put("type", descriptor.getAnnotation().annotationType().getSimpleName());
+            element.put("attributes", attributes);
             element.put("message", message);
+            element.put("invalidValue", v.getInvalidValue());
             return element;
         }
+    }
+
+    @FunctionalInterface
+    interface ViolationMapper {
+        Object map(ConstraintViolation v, @Nullable String fieldName, JerseyViolationException e);
     }
 }

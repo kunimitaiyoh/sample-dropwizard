@@ -6,7 +6,7 @@ import java.net.URLConnection
 import java.time.Instant
 import java.util.UUID
 import javax.annotation.security.PermitAll
-import javax.imageio.{ImageIO, ImageReader}
+import javax.imageio.ImageIO
 import javax.validation.Valid
 import javax.ws.rs.core.{MediaType, Response}
 import javax.ws.rs.{BeanParam, Consumes, FormParam, GET, NotFoundException, POST, Path, PathParam, Produces}
