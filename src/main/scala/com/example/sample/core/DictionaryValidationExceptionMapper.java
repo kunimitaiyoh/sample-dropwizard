@@ -1,10 +1,10 @@
 package com.example.sample.core;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import io.dropwizard.jersey.validation.ConstraintMessage;
 import io.dropwizard.jersey.validation.JerseyViolationException;
 import io.dropwizard.validation.ValidationMethod;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.server.validation.internal.LocalizationMessages;
 import org.glassfish.jersey.server.validation.internal.ValidationHelper;
 
@@ -18,7 +18,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.StreamSupport;
@@ -103,11 +102,20 @@ public final class DictionaryValidationExceptionMapper implements ExceptionMappe
             attributes.remove("payload");
 
             Optional.ofNullable(fieldName).ifPresent(f -> element.put("field", f));
-            element.put("type", descriptor.getAnnotation().annotationType().getSimpleName());
+            element.put("type", resolveTypeName(v, descriptor, fieldName));
             element.put("attributes", attributes);
             element.put("message", message);
             element.put("invalidValue", v.getInvalidValue());
             return element;
+        }
+
+        static String resolveTypeName(ConstraintViolation v, ConstraintDescriptor<?> descriptor, @Nullable String fieldName) {
+            if (fieldName != null) {
+                return descriptor.getAnnotation().annotationType().getSimpleName();
+            } else {
+                String name = Iterables.getLast(v.getPropertyPath()).getName();
+                return StringUtils.capitalize(name);
+            }
         }
     }
 
